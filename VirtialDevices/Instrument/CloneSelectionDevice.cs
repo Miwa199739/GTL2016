@@ -106,78 +106,37 @@ namespace Instrument
         public Int16 SCP_G = 21;
         public Int16 SCP_B = 75;
 
-        //上层Form需要用到这些函数，所以暂时保留，但底层类操作中不需要这些函数
-        public UInt32 getJiaReShiJian() { return this.SCP_HeatTime; }
-        public UInt32 getQingXiShiJian() { return this.SCP_FlushTime; }
-        public UInt32 getQingXiCiShu() { return this.SCP_FlushNo; }
-        public UInt32 getChouQiShiJian() { return this.SCP_ExhaustTime; }
-        public UInt32 getLengQueShiJian() { return this.SCP_CoolTime; }
-        public double getZhouChangMianJiBi_Max() { return this.SCP_MaxPARate; }
-        public double getZhouChangMianJiBi_Min() { return this.SCP_MinPARate; }
-        public double getMianJi_Max() { return this.SCP_SizeMax; }
-        public double getMianJi_Min() { return this.SCP_SizeMin; }
-        public double getChangJing_Max() { return this.SCP_MaxLength; }
-        public double getChangJing_Min() { return this.SCP_MinLength; }
-        public double getDuanJing_Max() { return this.SCP_MaxShort; }
-        public double getDuanJing_Min() { return this.SCP_MinShort; }
-        public double getBiZhi_Max() { return this.SCP_MaxRate; }
-        public double getBiZhi_Min() { return this.SCP_MinRate; }
-        public Int16 getR() { return this.SCP_R; }
-        public Int16 getG() { return this.SCP_G; }
-        public Int16 getB() { return this.SCP_B; }
+        //消息命令
+        public string SCP_Cmd;
 
-        private void decodeSetMessage(ModbusMessage msg)
+        public void sendOKResponse()
         {
-            String setType = (String)msg.Data["SetType"];
-            if ("ZhouChangMianJiBi".Equals(setType)) 
-            {
-                this.SCP_MaxPARate = double.Parse((String)msg.Data["ZhouChangMianJiBi_Max"]);
-                this.SCP_MinPARate = double.Parse((String)msg.Data["ZhouChangMianJiBi_Min"]);
-            }
-
-            if ("MianJiShaiXuan".Equals(setType))
-            {
-                this.SCP_SizeMax = double.Parse((String)msg.Data["MianJi_Max"]);
-                this.SCP_SizeMin = double.Parse((String)msg.Data["MianJi_Min"]);
-            } 
-
-            if ("ChangDuanJingShaiXuan".Equals(setType))
-            {
-                this.SCP_MaxLength = double.Parse((String)msg.Data["ChangJing_Max"]);
-                this.SCP_MinLength = double.Parse((String)msg.Data["ChangJing_Min"]);
-                this.SCP_MaxShort = double.Parse((String)msg.Data["DuanJing_Max"]);
-                this.SCP_MinShort = double.Parse((String)msg.Data["DuanJing_Min"]);
-                this.SCP_MaxRate = double.Parse((String)msg.Data["BiZhi_Max"]);
-                this.SCP_MinRate = double.Parse((String)msg.Data["BiZhi_Min"]);
-            } 
-
-            if ("SeDuPingJunZhi".Equals(setType))
-            {
-                this.SCP_R = Int16.Parse((String)msg.Data["R"]);
-                this.SCP_G = Int16.Parse((String)msg.Data["G"]);
-                this.SCP_B = Int16.Parse((String)msg.Data["B"]);
-            }
-
-            if ("MieJunHeQingXi".Equals(setType))
-            {
-                this.SCP_HeatTime = UInt32.Parse((String)msg.Data["JiaReShiJian"]);
-                this.SCP_FlushTime = UInt32.Parse((String)msg.Data["QingXiShiJian"]);
-                this.SCP_FlushNo = UInt32.Parse((String)msg.Data["QingXiCiShu"]);
-                this.SCP_ExhaustTime = UInt32.Parse((String)msg.Data["ChouQiShiJian"]);
-                this.SCP_CoolTime = UInt32.Parse((String)msg.Data["LengQueShiJian"]);
-            }
-
+            SendModBusMsg(ModbusMessage.MessageType.RESPONSE, "Result", "OK");
         }
 
-        public override void ReceiveMsg(String s)
+        public override void decodeCmdMessage(ModbusMessage msg)
         {
-            ModbusMessage message = ModbusMessageHelper.decodeModbusMessage(s);
-            switch (message.MsgType) 
+            String cmd = (String)msg.Data["Cmd"];
+            if ("Start".Equals(cmd))
             {
-                case ModbusMessage.MessageType.SET:
-                    decodeSetMessage(message);
-                    break;
+                //dispenTimer.Start();
+                this.SCP_Cmd = "Start";
             }
+            if ("Reset".Equals(cmd))
+            {
+                this.SCP_Cmd = "Reset";
+            }
+            if ("Stop".Equals(cmd))
+            {
+                //dispenTimer.Stop();
+                this.SCP_Cmd = "Stop";
+            }
+            if ("Auto".Equals(cmd))
+            {
+                this.SCP_Cmd = "Auto";
+            }
+
+            this.sendOKResponse();
         }
     }
 

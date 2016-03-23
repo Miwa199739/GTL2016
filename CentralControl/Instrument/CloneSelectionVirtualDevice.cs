@@ -126,36 +126,37 @@ namespace Instrument
         public Int16 SCP_G = 21;
         public Int16 SCP_B = 75;
 
-        //上层Form需要用到这些函数，所以暂时保留，但底层类操作中不需要这些函数
-        public UInt32 getJiaReShiJian() { return this.SCP_HeatTime; }
-        public UInt32 getQingXiShiJian() { return this.SCP_FlushTime; }
-        public UInt32 getQingXiCiShu() { return this.SCP_FlushNo; }
-        public UInt32 getChouQiShiJian() { return this.SCP_ExhaustTime; }
-        public UInt32 getLengQueShiJian() { return this.SCP_CoolTime; }
-        public double getZhouChangMianJiBi_Max() { return this.SCP_MaxPARate; }
-        public double getZhouChangMianJiBi_Min() { return this.SCP_MinPARate; }
-        public double getMianJi_Max() { return this.SCP_SizeMax; }
-        public double getMianJi_Min() { return this.SCP_SizeMin; }
-        public double getChangJing_Max() { return this.SCP_MaxLength; }
-        public double getChangJing_Min() { return this.SCP_MinLength; }
-        public double getDuanJing_Max() { return this.SCP_MaxShort; }
-        public double getDuanJing_Min() { return this.SCP_MinShort; }
-        public double getBiZhi_Max() { return this.SCP_MaxRate; }
-        public double getBiZhi_Min() { return this.SCP_MinRate; }
-        public Int16 getR() { return this.SCP_R; }
-        public Int16 getG() { return this.SCP_G; }
-        public Int16 getB() { return this.SCP_B; }
+        //命令信息
+        public string SCP_Cmd;
 
-        public void setZhouChangMianJiBi_Max(string max) {  SCP_MaxPARate = double.Parse(max); }
-        public void setZhouChangMianJiBi_Min(string min) {  SCP_MinPARate = double.Parse(min); }
-
-        public override void ReceiveMsg(String s)
+        public void sendOKResponse()
         {
-            ModbusMessage message = ModbusMessageHelper.decodeModbusMessage(s);
-            //switch (message.MsgType)
-            {
+            SendModBusMsg(ModbusMessage.MessageType.RESPONSE, "Result", "OK");
+        }
 
+        public override void decodeCmdMessage(ModbusMessage msg)
+        {
+            String cmd = (String)msg.Data["Cmd"];
+            if ("Start".Equals(cmd))
+            {
+                //dispenTimer.Start();
+                this.SCP_Cmd = "Start";
             }
+            if ("Reset".Equals(cmd))
+            {
+                this.SCP_Cmd = "Reset";
+            }
+            if ("Stop".Equals(cmd))
+            {
+                //dispenTimer.Stop();
+                this.SCP_Cmd = "Stop";
+            }
+            if ("Auto".Equals(cmd))
+            {
+                this.SCP_Cmd = "Auto";
+            }
+
+            this.sendOKResponse();
         }
     }
 
