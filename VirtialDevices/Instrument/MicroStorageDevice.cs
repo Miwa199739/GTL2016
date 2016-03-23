@@ -181,6 +181,36 @@ namespace Instrument
 
 
         }
+
+        public void sendOKResponse()
+        {
+            SendModBusMsg(ModbusMessage.MessageType.RESPONSE, "Result", "OK");
+        }
+
+        public override void decodeCmdMessage(ModbusMessage msg)
+        {
+            String cmd = (String)msg.Data["Cmd"];
+            if ("Start".Equals(cmd))
+            {
+                this.MMR_Cmd = "Start";
+            }
+            if ("Reset".Equals(cmd))
+            {
+                this.MMR_Cmd = "Reset";
+            }
+            if ("Stop".Equals(cmd))
+            {
+                this.MMR_Cmd = "Stop";
+            }
+            if ("Auto".Equals(cmd))
+            {
+                this.MMR_Cmd = "Auto";
+            }
+
+            this.sendOKResponse();
+        }
+
+
         public override void ReceiveMsg(String s)
         {
             ModbusMessage message = ModbusMessageHelper.decodeModbusMessage(s);
@@ -192,7 +222,7 @@ namespace Instrument
             }
         }
 
-
+        public string MMR_Cmd;
         public int MMR_CurentSelectIndex;
         public bool MMR_Module1 = false;
         public bool MMR_Module2 = false;

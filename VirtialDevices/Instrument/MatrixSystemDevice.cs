@@ -81,6 +81,8 @@ namespace Instrument
 
     public class MatrixSystemDevice : BaseVirtualDevice
     {
+
+        public string HAC_Cmd;
         //---------------------上位机发---------------------
 
         //仪器系统
@@ -286,6 +288,33 @@ namespace Instrument
             getSystemTimer.Elapsed += new System.Timers.ElapsedEventHandler(getSystemTimer_Elapsed);
             getSystemTimer.Start();
         }
+        public void sendOKResponse()
+        {
+            SendModBusMsg(ModbusMessage.MessageType.RESPONSE, "Result", "OK");
+        }
+
+        public override void decodeCmdMessage(ModbusMessage msg)
+        {
+            String cmd = (String)msg.Data["Cmd"];
+            if ("Start".Equals(cmd))
+            {
+                this.HAC_Cmd = "Start";
+            }
+            if ("Reset".Equals(cmd))
+            {
+                this.HAC_Cmd = "Reset";
+            }
+            if ("Stop".Equals(cmd))
+            {
+                this.HAC_Cmd = "Stop";
+            }
+            if ("Auto".Equals(cmd))
+            {
+                this.HAC_Cmd = "Auto";
+            }
+
+            this.sendOKResponse();
+        }
 
         private void decodeSetMessage(ModbusMessage msg)
         {
@@ -331,15 +360,15 @@ namespace Instrument
             }
         }
 
-        public override void ReceiveMsg(String s)
-        {
-            ModbusMessage message = ModbusMessageHelper.decodeModbusMessage(s);
-            switch (message.MsgType)
-            {
-                case ModbusMessage.MessageType.SET:
-                    decodeSetMessage(message);
-                    break;
-            }
-        }
+        //public override void ReceiveMsg(String s)
+        //{
+        //    ModbusMessage message = ModbusMessageHelper.decodeModbusMessage(s);
+        //    switch (message.MsgType)
+        //    {
+        //        case ModbusMessage.MessageType.SET:
+        //            decodeSetMessage(message);
+        //            break;
+        //    }
+        //}
     }
 }

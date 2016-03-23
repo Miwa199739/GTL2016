@@ -50,6 +50,7 @@ namespace Instrument
 
     public class MultiTunnelDevice : BaseVirtualDevice
     {
+        public string MMA_Cmd;
 
         public static int MMA_TestRowIndex = 8;
         public static int MMA_TestColumnIndex = 12;
@@ -279,6 +280,33 @@ namespace Instrument
                 String mode = (String)msg.Data["Mode"];
                 MMA_TestMode = stringToJianCeMoShi(mode);
             }
+        }
+        public void sendOKResponse()
+        {
+            SendModBusMsg(ModbusMessage.MessageType.RESPONSE, "Result", "OK");
+        }
+
+        public override void decodeCmdMessage(ModbusMessage msg)
+        {
+            String cmd = (String)msg.Data["Cmd"];
+            if ("Start".Equals(cmd))
+            {
+                this.MMA_Cmd = "Start";
+            }
+            if ("Reset".Equals(cmd))
+            {
+                this.MMA_Cmd = "Reset";
+            }
+            if ("Stop".Equals(cmd))
+            {
+                this.MMA_Cmd = "Stop";
+            }
+            if ("Auto".Equals(cmd))
+            {
+                this.MMA_Cmd = "Auto";
+            }
+
+            this.sendOKResponse();
         }
 
         public override void ReceiveMsg(String s)

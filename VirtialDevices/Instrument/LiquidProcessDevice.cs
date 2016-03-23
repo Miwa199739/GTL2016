@@ -16,6 +16,7 @@ namespace Instrument
         public int LHS_LiquidPosition;
         public int LHS_DischargePosition;
         public String LHS_PlateStatus;
+        public string LHS_Cmd;
 
         public LiquidProcessDevice()
         {
@@ -28,7 +29,10 @@ namespace Instrument
             LHS_DischargePosition = 0;
             LHS_PlateStatus = "00000000000000000000";
         }
-
+        public void sendOKResponse()
+        {
+            SendModBusMsg(ModbusMessage.MessageType.RESPONSE, "Result", "OK");
+        }
         private void decodeSetMessage(ModbusMessage msg)
         {
             String setType = (String)msg.Data["SetType"];
@@ -52,6 +56,29 @@ namespace Instrument
             {
                 LHS_PlateStatus = (String)msg.Data["LHS_PlateStatus"];
             }
+        }
+
+        public override void decodeCmdMessage(ModbusMessage msg)
+        {
+            String cmd = (String)msg.Data["Cmd"];
+            if ("Start".Equals(cmd))
+            {
+                this.LHS_Cmd = "Start";
+            }
+            if ("Reset".Equals(cmd))
+            {
+                this.LHS_Cmd = "Reset";
+            }
+            if ("Stop".Equals(cmd))
+            {
+                this.LHS_Cmd = "Stop";
+            }
+            if ("Auto".Equals(cmd))
+            {
+                this.LHS_Cmd = "Auto";
+            }
+
+            this.sendOKResponse();
         }
 
         public override void ReceiveMsg(String s)
