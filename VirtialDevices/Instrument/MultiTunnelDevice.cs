@@ -270,25 +270,6 @@ namespace Instrument
                 MMA_PlateDetect = true;
                 startTimer();
             }
-        }
-
-        private void decodeSetMessage(ModbusMessage msg)
-        {
-            String setType = (String)msg.Data["SetType"];
-            if ("Mode".Equals(setType))
-            {
-                String mode = (String)msg.Data["Mode"];
-                MMA_TestMode = stringToJianCeMoShi(mode);
-            }
-        }
-        public void sendOKResponse()
-        {
-            SendModBusMsg(ModbusMessage.MessageType.RESPONSE, "Result", "OK");
-        }
-
-        public override void decodeCmdMessage(ModbusMessage msg)
-        {
-            String cmd = (String)msg.Data["Cmd"];
             if ("Start".Equals(cmd))
             {
                 this.MMA_Cmd = "Start";
@@ -305,9 +286,23 @@ namespace Instrument
             {
                 this.MMA_Cmd = "Auto";
             }
-
             this.sendOKResponse();
         }
+
+        private void decodeSetMessage(ModbusMessage msg)
+        {
+            String setType = (String)msg.Data["SetType"];
+            if ("Mode".Equals(setType))
+            {
+                String mode = (String)msg.Data["Mode"];
+                MMA_TestMode = stringToJianCeMoShi(mode);
+            }
+        }
+        public void sendOKResponse()
+        {
+            SendModBusMsg(ModbusMessage.MessageType.RESPONSE, "Result", "OK");
+        }
+
 
         public override void ReceiveMsg(String s)
         {
